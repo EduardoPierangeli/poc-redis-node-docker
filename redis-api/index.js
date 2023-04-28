@@ -14,7 +14,7 @@ async function consultaCacheRedis(req, res) {
   try {
     let cacheResults = await redisClient.get(chave);
     res.status(200).send({
-      valor: cacheResults,
+      valor: cacheResults
     });
   } catch (error) {
     console.error(error);
