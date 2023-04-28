@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  api: 
+    depends_on: 
+      - redis
+    build: ./redis-api
+    env_file: ./.env
+    environment:
+      - REDIS_URL=${REDIS_URL}
+    ports: 
+      - 3000:3000
+ 
+  redis:
+    image: redis/redis-stack:latest
+    ports:
+      - 6379:6379
+      - 8001-8001
+    volumes:
+      - redis:/data
+
+volumes:
+  redis:
