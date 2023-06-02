@@ -4,6 +4,9 @@ services:
   api: 
     depends_on: 
       - redis
+      - db 
+      - sonar
+      - wiremock
     build: ./redis-api
     env_file: ./.env
     environment:
@@ -13,14 +16,75 @@ services:
     volumes:
       - ./redis-api:/app
       - /app/node_modules
+    restart: always
  
   redis:
     image: redis/redis-stack:latest
+    container_name: redis-container
     ports:
       - 6379:6379
       - 8001-8001
     volumes:
       - redis:/data
+    restart: always
+
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    container_name: mysql-container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: senha@123
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql:/data/db
+
+  sonar:
+    image: sonarqube
+    container_name: sonar-container
+    ports:
+      - 9000:9000
+    volumes:
+      - sonar:/data/sonar
+    restart: always
+
+  wiremock:
+    image: rodolpheche/wiremock
+    container_name: wiremock
+    ports:
+      - 8081:8080
+    volumes:
+      - ./wiremock/__files:/home/wiremock/__ files
+      - ./wiremock/mappings:/home/wiremock/mappings
+    restart: always
+
+  openzipkin:
+    image: jaegertracing/all-in-one
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+    ports:
+      - "16686:16686" #Jeager port
+      - "9411:9411" # Zipking port
+
+  reverseproxy:
+    build: ./proxy
+    ports:
+      - "80:80"
+      - "9001:9001"
+    depends_on:
+      - api
+      - openzipkin
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.57.0/24
 
 volumes:
   redis:
+  mysql:
+  sonar:
+  wiremock:

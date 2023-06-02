@@ -1,0 +1,13 @@
+{
+    "request": {
+      "url": "/api/get-wiremock",
+      "method": "GET"
+    },
+    "response": {
+      "status": 200,
+      "body": "{ \"result\": \"Sucesso!\" }",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    }
+  }
